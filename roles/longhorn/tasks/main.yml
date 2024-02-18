@@ -1,0 +1,25 @@
+---
+- name: Execute prereq tasks
+  ansible.builtin.include_tasks: "prereq/default.yml"
+
+- name: Deploy longhorn
+  block:
+    - name: Download longhorn deployment manifest
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/longhorn/longhorn/v1.6.0/deploy/longhorn.yaml
+        dest: ~/longhorn.yaml
+        mode: '0664'
+
+    - name: Apply longhorn manifest
+      kubernetes.core.k8s:
+        state: present
+        src: ~/longhorn.yaml
+
+    - name: Cleanup files
+      ansible.builtin.file:
+        path: ~/longhorn.yaml
+        state: absent
+  run_once: true
+
+# TODO: Set longhorn as default storage class
+# kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'

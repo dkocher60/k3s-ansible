@@ -205,3 +205,9 @@
         dest: "/var/lib/rancher/k3s/server/manifests"
         mode: 0600
       loop: "{{ extra_manifests }}"
+
+- name: Ensure kubernetes Python library is installed on host for Ansible managed kube deployments
+  ansible.builtin.pip:
+    name: kubernetes
+    state: present
+    extra_args: "--break-system-packages" # Needed since stock python library is marked as externally managed
